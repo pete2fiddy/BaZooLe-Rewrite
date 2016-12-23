@@ -1,5 +1,8 @@
 package shiftplanning;
 
+import updatables.MouseUpdatable;
+import updatables.Updatable;
+import updatables.UpdatableOnQuadrantChange;
 import containers.GamePanel;
 import inputs.KeyboardInput;
 import java.awt.Color;
@@ -8,12 +11,13 @@ import java.awt.Graphics;
 /*Is a 3D plane upon which objects can be drawn. Can calculate 3D projection points onto its plane for drawing, can handle rotation of
 the plane, and can hold objects pertinent to the plane.
  */
-public class Plane implements Updatable, ThreeDDrawable
+public abstract class Plane implements Updatable, ThreeDDrawable, UpdatableOnQuadrantChange
 {
     public static int screenWidth = 1440, screenHeight = 900;
     private double spin, rotation;
     double centerPosX, centerPosY;
     private GamePanel boundPanel;
+    private UpdatableOnQuadrantChange[] quadrantUpdatables = new UpdatableOnQuadrantChange[0];
     private SpinQuadrant spinQuadrant;
     private Updatable[] updatables;
     private ThreeDDrawable[] threeDDrawables;
@@ -22,8 +26,14 @@ public class Plane implements Updatable, ThreeDDrawable
     private DistanceSorter distanceSorter;
     private MouseUpdatable[] mouseUpdatables;//holds all objects that update on mouse interaction.
     private XYZPoint[][] gridPoints;
+    
     //private ArrayList<MouseUpdatable> mouseUpdatables = new ArrayList<MouseUpdatable>();
     
+    
+    /*
+    Make sure that sides of layeredSolids aren't being drawn twice (might be because I see a fuzzy "black" edge around layered solids so 
+    maybe I draw it once normally, then shade it, instead of just shading
+    */
     /*
         CURRENTLY DOESN'T TAKE A ZPOS. (Note:) Bound planes should take an XYZPoint for their position input
     */
@@ -40,17 +50,18 @@ public class Plane implements Updatable, ThreeDDrawable
         updatables = new Updatable[1];
         mouseUpdatables = new MouseUpdatable[0];
         updatables[0] = spinQuadrant;
-        planeShape = ShapeLayer.createShapeLayerUsingIdealPolygon(this, 0, 0, 0, width/2.0, 4);//automatically uses a square, but could use a rectangle. Just haven't coded it to.
+        planeShape = ShapeLayer.createShapeLayerUsingIdealPolygon(this, 0, 0, 0, width/2.0, 4, Color.GREEN);//automatically uses a square, but could use a rectangle. Just haven't coded it to.
         addUpdatable(planeShape);
         threeDDrawables = new ThreeDDrawable[0];
-        addRandomSolidsToThreeDDrawables();
         distanceSorter = new DistanceSorter(this, threeDDrawables);
-        
+        addQuadrantUpdatable(distanceSorter);
         gridPoints = new XYZPoint[2][(int)(width+length)];
         setGriddedPlaneShapePoints();
     }
     
-    private void addRandomSolidsToThreeDDrawables()
+    public abstract BasePlane getBasePlane();
+    
+    public void addRandomSolidsToThreeDDrawables()
     {
         int numSolids = 10;
         for(int i = 0; i < numSolids; i++)
@@ -58,7 +69,7 @@ public class Plane implements Updatable, ThreeDDrawable
             double centerX = (int)((Math.random()*width)-(width/2.0));
             double centerY = (int)(Math.random()*length)-(length/2.0);
             double randomRadius = 0.5 + (Math.random() * 2);
-            double randomHeight = 1 + (Math.random() * 5);
+            double randomHeight = 1 + (int)(Math.random() * 2);
             double randomWidth = (int)(1+(Math.random() * 5));
             double randomLength = (int)(1+(Math.random() * 5));
             int randSides = 3+(int)(Math.random() * 4);
@@ -70,7 +81,9 @@ public class Plane implements Updatable, ThreeDDrawable
         }
     }
     
-    
+    public ShapeLayer getShape(){
+        return planeShape;
+    }
     
     //converts x and y in terms of relative units into a point to be projected on screen. Uses centerPosX and centerPosY for relative positioning so same conversions can be used for BasePlane and BoundPlane
     public XYPoint convertCoordsToPoint(XYZPoint xyzPoint)
@@ -97,9 +110,8 @@ public class Plane implements Updatable, ThreeDDrawable
     @Override
     public void draw(Graphics g) 
     {
-        g.setColor(Color.WHITE);
         planeShape.draw(g);
-        g.setColor(Color.BLACK);
+        g.setColor(new Color(0, 51, 204, 50));//consider switching to color interpolation. Could never get the color looking quite the same with color interpolation and the alpha slowdown was negligible anyway.
         drawGriddedPlaneShape(g);
         for(ThreeDDrawable threeD : threeDDrawables)
         {
@@ -166,6 +178,15 @@ public class Plane implements Updatable, ThreeDDrawable
         updatables = tempArray;
     }
     
+    public void addQuadrantUpdatable(UpdatableOnQuadrantChange u){
+        UpdatableOnQuadrantChange[] temp = new UpdatableOnQuadrantChange[quadrantUpdatables.length + 1];
+        for (int i = 0; i < quadrantUpdatables.length; i++) {
+            temp[i] = quadrantUpdatables[i];
+        }
+        temp[temp.length - 1] = u;
+        quadrantUpdatables = temp;
+    }
+    
     public void addThreeDDrawable(ThreeDDrawable threeDDrawableIn)
     {
         ThreeDDrawable[] tempArray = new ThreeDDrawable[threeDDrawables.length + 1];
@@ -175,6 +196,7 @@ public class Plane implements Updatable, ThreeDDrawable
         tempArray[tempArray.length - 1] = threeDDrawableIn;
         threeDDrawables = tempArray;
     }
+    
     
     public ThreeDDrawable[] getThreeDDrawables()
     {
@@ -278,6 +300,7 @@ public class Plane implements Updatable, ThreeDDrawable
         addRotation(KeyboardInput.dRotation);
         setSpinWithinBounds();
         setRotationWithinBounds();
+        //traversableLogic.setColorOfConnectedPaths();
     }
 
     
@@ -311,5 +334,23 @@ public class Plane implements Updatable, ThreeDDrawable
     public double getSortDistanceConstant() 
     {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public double getBackSortDistanceConstant() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public double getZ() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void updateOnQuadrantChange() {
+        for(UpdatableOnQuadrantChange u : quadrantUpdatables){
+            u.updateOnQuadrantChange();
+        }
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

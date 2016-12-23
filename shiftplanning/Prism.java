@@ -5,6 +5,8 @@
  */
 package shiftplanning;
 
+import java.awt.Color;
+
 /**
  *
  * @author phusisian
@@ -17,17 +19,17 @@ public class Prism extends LayeredSolid
         super(boundPlaneIn, shapeLayersIn);
     }
     
-    public static Prism createPrism(Plane boundPlaneIn, XYZPoint baseCenter, XYZPoint topCenter, double radius, int numSides)
+    public static Prism createPrism(Plane boundPlaneIn, XYZPoint baseCenter, XYZPoint topCenter, double radius, int numSides, Color c)
     {
-        ShapeLayer[] shapeLayers = calculateShapeLayersToPass(boundPlaneIn, baseCenter, topCenter, radius, numSides);
+        ShapeLayer[] shapeLayers = calculateShapeLayersToPass(boundPlaneIn, baseCenter, topCenter, radius, numSides, c);
         return new Prism(boundPlaneIn, shapeLayers);
     }
     
-    private static ShapeLayer[] calculateShapeLayersToPass(Plane boundPlaneIn, XYZPoint baseCenter, XYZPoint topCenter, double radius, int numSides)
+    private static ShapeLayer[] calculateShapeLayersToPass(Plane boundPlaneIn, XYZPoint baseCenter, XYZPoint topCenter, double radius, int numSides, Color c)
     {
         ShapeLayer[] shapeLayers = new ShapeLayer[2];
-        shapeLayers[0] = ShapeLayer.createShapeLayerUsingIdealPolygon(boundPlaneIn, baseCenter.getX(), baseCenter.getY(), baseCenter.getZ(), radius, numSides);
-        shapeLayers[1] = ShapeLayer.createShapeLayerUsingIdealPolygon(boundPlaneIn, topCenter.getX(), topCenter.getY(), topCenter.getZ(), radius, numSides);
+        shapeLayers[0] = ShapeLayer.createShapeLayerUsingIdealPolygon(boundPlaneIn, baseCenter.getX(), baseCenter.getY(), baseCenter.getZ(), radius, numSides, c);
+        shapeLayers[1] = ShapeLayer.createShapeLayerUsingIdealPolygon(boundPlaneIn, topCenter.getX(), topCenter.getY(), topCenter.getZ(), radius, numSides, c);
         return shapeLayers;
     }
 }

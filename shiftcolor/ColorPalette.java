@@ -1,4 +1,4 @@
-package shiftplanning;
+package shiftcolor;
 
 import java.awt.Color;
 
@@ -8,6 +8,8 @@ import java.awt.Color;
  */
 public class ColorPalette 
 {
+    public static final Color defaultGrassColor = new Color(80,124,41);
+    public static final Color baseWaterColor = new Color(30, 144, 255);
     public static Color getLerpColor(Color topColor, Color bottomColor, double alpha)
     {
         int red, green, blue;

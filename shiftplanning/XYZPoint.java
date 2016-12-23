@@ -5,8 +5,10 @@
  */
 package shiftplanning;
 
+import updatables.Updatable;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Point;
 
 /*holds x, y, and z coords for ease of access, along with their bound 
  */
@@ -35,6 +37,23 @@ public class XYZPoint implements ThreeDDrawable, Updatable
     /*
     Getters and setters for XYZ and boundPlane, including one which returns the point as an array in the form {x,y,z};
     */
+    
+    public void setX(double xIn){
+        point[0] = xIn;
+    }
+    
+    public void setY(double yIn){
+        point[1] = yIn;
+    }
+    
+    public void setZ(double zIn){
+        point[2] = zIn;
+    }
+    
+    public Plane getBoundPlane(){
+        return boundPlane;
+    }
+    
     public double[] getPointArray()
     {
         return point;
@@ -70,6 +89,10 @@ public class XYZPoint implements ThreeDDrawable, Updatable
     {
         XYPoint screenPoint = boundPlane.convertCoordsToPoint(this);
         g.fillOval((int)screenPoint.getX() - 5, (int)screenPoint.getY() - 5, 10, 10);
+    }
+    
+    public double getAngleToPoint(XYZPoint anglePoint){
+        return Math.atan2(getY() - anglePoint.getY(), getX() - anglePoint.getX());
     }
     
     public void drawLineToPoint(Graphics g, XYZPoint xyzPointIn)
@@ -118,10 +141,24 @@ public class XYZPoint implements ThreeDDrawable, Updatable
         point[2] += translatePoint.getZ();
     }
     
+    public XYZPoint getTranslatedPoint(double dx, double dy, double dz){
+        XYZPoint newPoint = new XYZPoint(boundPlane, getX() + dx, getY() + dy, getZ() + dz);
+        return newPoint;
+    }
+    
     @Override
-    public void update() 
+    public double getBackSortDistanceConstant(){
+        return getSortDistanceConstant();
+    }
+    
+    @Override
+    public void update()
     {
         precalculatedPointProjection = boundPlane.convertCoordsToPoint(this);
+    }
+    
+    public Point getAsPoint(){
+        return precalculatedPointProjection.getAsPoint();
     }
     
     public String toString()

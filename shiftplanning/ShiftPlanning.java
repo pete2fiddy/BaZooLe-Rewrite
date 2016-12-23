@@ -16,7 +16,6 @@ public class ShiftPlanning {
     public static void main(String[] args)
     {
         Frame f = new Frame();
-        // TODO code application logic here
     }
     
 }

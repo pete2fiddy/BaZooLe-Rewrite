@@ -9,8 +9,15 @@ import java.awt.Graphics;
  */
 public class BoundPlane extends Plane implements ThreeDDrawable
 {
-    public BoundPlane(GamePanel boundPanelIn, Plane boundPlane, double xPos, double yPos, double width, double length) {
+    private Plane boundPlane;
+    public BoundPlane(GamePanel boundPanelIn, Plane boundPlaneIn, double xPos, double yPos, double width, double length) {
         super(boundPanelIn, xPos, yPos, width, length);
+        boundPlane = boundPlaneIn;
+    }
+    
+    @Override
+    public BasePlane getBasePlane(){
+        return boundPlane.getBasePlane();
     }
     
     /***Not implemented yet.***/

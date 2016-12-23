@@ -5,6 +5,7 @@
  */
 package shiftplanning;
 
+import updatables.Updatable;
 import inputs.MouseInput;
 
 /**

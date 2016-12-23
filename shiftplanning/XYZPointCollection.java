@@ -5,11 +5,16 @@
  */
 package shiftplanning;
 
+import updatables.Updatable;
+import shiftmath.AngleMath;
+import java.awt.Color;
+import java.awt.Graphics;
+
 /**
  *
  * @author phusisian
  */
-public class XYZPointCollection implements Updatable
+public class XYZPointCollection implements Updatable, TwoDDrawable
 {
     private Plane boundPlane;
     private XYZPoint midpoint;
@@ -30,6 +35,90 @@ public class XYZPointCollection implements Updatable
     public int getXYZPointsLength()
     {
         return xyzPoints.length;
+    }
+    
+    public void removePointIntersections(){
+        XYZLine[] lines = getCollectionAsLines();
+        
+        int pointSubtract = 0;
+        for(int i = 0; i < lines.length; i++){
+            if(lines[i].getIntersectionWithinBounds(lines[(i+1)%lines.length]) != null){
+                //xyzPoints[(i-pointSubtract)%xyzPoints.length] = lines[i].getIntersectionWithinBounds(lines[(i+1)%lines.length]);
+                //removePoint((i+1 - pointSubtract)%xyzPoints.length);
+                //pointSubtract ++;
+                //removePoint((i+1)%xyzPoints.length);
+                //addPoint(i, lines[i].getIntersectionWithinBounds(lines[(i+1)%xyzPoints.length]));
+                //removePoint(i);
+                //addPoint(i, lines[i].getIntersectionWithinBounds(lines[(i+1)%lines.length]));
+                
+            }
+        }
+    }
+    
+    public Plane getBoundPlane(){
+        return boundPlane;
+    }
+    
+    
+    public XYZLine[] getCollectionAsLines(){
+        XYZLine[] lines = new XYZLine[xyzPoints.length];
+        for(int i = 0; i < xyzPoints.length; i++){
+            if(i < xyzPoints.length - 1){
+                lines[i] = new XYZLine(xyzPoints[i], xyzPoints[i+1]);
+            }else{
+                lines[i] = new XYZLine(xyzPoints[i], xyzPoints[0]);
+            }
+        }
+        return lines;
+    }
+    
+    public void addPoint(int index, XYZPoint p1){
+        XYZPoint[] temp = new XYZPoint[xyzPoints.length + 1];
+        for(int i = 0; i < temp.length; i++){
+            if(i < index){
+                temp[i] = xyzPoints[i];
+            }else if(i == index){
+                temp[i] = p1;
+            }else{
+                temp[i] = xyzPoints[i-1];
+            }  
+        }
+        xyzPoints = temp;
+    }
+    
+    public void removePoint(int index){
+        XYZPoint[] temp = new XYZPoint[xyzPoints.length - 1];
+        for(int i = 0; i < temp.length; i++){
+            if(i < index){
+                temp[i] = xyzPoints[i];
+            }else{
+                temp[i] = xyzPoints[i+1];
+            }
+        }
+        xyzPoints = temp;
+    }
+    
+    public void rotate(XYZPoint pivot, double theta){
+        for(XYZPoint point : xyzPoints){
+            double dx = point.getX() - pivot.getX();
+            double dy = point.getY() - pivot.getY();
+            double initTheta = Math.atan2(dy, dx);
+            double radius = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+            point.setX(pivot.getX() + radius * Math.cos(initTheta + theta));
+            point.setY(pivot.getY() + radius * Math.sin(initTheta + theta));
+        }
+    }
+    
+    public XYZPoint[] getXYZPoints(){
+        return xyzPoints;
+    }
+    
+    public XYZPoint getStartPoint(){
+        return xyzPoints[0];
+    }
+    
+    public XYZPoint getEndPoint(){
+        return xyzPoints[xyzPoints.length - 1];
     }
     
     public XYZPoint getMidpoint()
@@ -162,6 +251,13 @@ public class XYZPointCollection implements Updatable
         return returnPolyPoints;
     }
     
+    public XYZPoint getPoint(int index){
+        return xyzPoints[index];
+    }
+    
+    public void setPoint(int index, XYZPoint p){
+        xyzPoints[index] = p;
+    }
     
     public int[][] getXYPolyPoints(){
         return xyPolyPoints;
@@ -175,6 +271,26 @@ public class XYZPointCollection implements Updatable
             xyz.update();
         }
         xyPolyPoints = calculateXYPolyPoints();
+    }
+
+    public XYZPoint getHighestPoint(){
+        int highestPointIndex = 0;
+        for(int i = 1; i < xyzPoints.length; i++){
+            if(xyzPoints[i].getZ() > xyzPoints[highestPointIndex].getZ()){
+                highestPointIndex = i;
+            }
+        }
+        return xyzPoints[highestPointIndex];
+    }
+    
+    @Override
+    public void draw(Graphics g) {
+        for(int i = 0; i < xyzPoints.length - 1; i++){
+            g.setColor(Color.BLACK);
+            xyzPoints[i].drawLineToPoint(g, xyzPoints[i+1]);
+            g.setColor(Color.BLACK);
+            xyzPoints[i].draw(g);
+        }
     }
     
 }

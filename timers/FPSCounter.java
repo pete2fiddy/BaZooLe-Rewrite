@@ -11,7 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.Timer;
 import shiftplanning.TwoDDrawable;
-import shiftplanning.Updatable;
+import updatables.Updatable;
 
 /**
  *

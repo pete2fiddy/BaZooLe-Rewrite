@@ -1,5 +1,9 @@
 package shiftplanning;
 
+import updatables.Updatable;
+import updatables.UpdatableOnQuadrantChange;
+import java.util.ArrayList;
+
 /**
  *
  * @author phusisian
@@ -7,6 +11,8 @@ package shiftplanning;
 public class DistanceSorter implements UpdatableOnQuadrantChange, Updatable
 {
     /*** DistanceSorter has a few issues involving how it sorts. Currently goes by the closest point to the viewer, but there are times where (generally long) shapes can extend farther back than the solid they are drawn over.
+     * Additionally, does not sort based on height, so I can't just clump all different ThreeDDrawables into one list and have it work if there are solids on top of solids.
+     */
     /*https://www.cs.cmu.edu/~adamchik/15-121/lectures/Sorting%20Algorithms/code/MergeSort.java Used this as source for merge sort.*/
     private Plane boundPlane;
     public DistanceSorter(Plane boundPlaneIn, ThreeDDrawable[] threeDDrawablesIn)
@@ -88,6 +94,7 @@ public class DistanceSorter implements UpdatableOnQuadrantChange, Updatable
     {
         sortByDistance(boundPlane.getThreeDDrawables());
     }
+    
 
     @Override
     public void update() 

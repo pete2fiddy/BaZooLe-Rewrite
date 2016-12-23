@@ -5,6 +5,8 @@
  */
 package shiftplanning;
 
+import java.awt.Point;
+
 /**
  *
  * @author phusisian
@@ -48,5 +50,9 @@ public class XYPoint
     public void setPoint(double[] newXYPoint)
     {
         xyPoint = newXYPoint;
+    }
+    
+    public Point getAsPoint(){
+        return new Point((int)xyPoint[0], (int)xyPoint[1]);
     }
 }

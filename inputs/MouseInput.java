@@ -7,9 +7,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import javax.swing.JPanel;
-import shiftplanning.Updatable;
+import updatables.Updatable;
 import static javax.swing.SwingUtilities.convertPointFromScreen;
 import shiftplanning.Plane;
+import shiftplanning.Unit;
 import shiftplanning.XYZPoint;
 
 /***
@@ -21,7 +22,7 @@ public class MouseInput extends MouseAdapter implements Updatable
     private JPanel boundPanel;
     private boolean mouseClickDebounce = false;
     private Plane boundPlane;
-    public static double dScaleAmount = 0.02;
+    public static double dScaleAmount = 0.01;
     private MouseWheelTimer mouseWheelTimer = new MouseWheelTimer(100);
     public static double dScale = 0;
     public static int mouseX, mouseY;
@@ -53,9 +54,9 @@ public class MouseInput extends MouseAdapter implements Updatable
     {
         int notches = e.getWheelRotation();
         if (notches > 0) {
-            dScale = dScaleAmount;
+            dScale = (dScaleAmount)*Unit.scale;
         } else if (notches < 0) {
-            dScale = -dScaleAmount;
+            dScale = -dScaleAmount*Unit.scale;
         }
         mouseWheelTimer.resetWheelTimer();
     }

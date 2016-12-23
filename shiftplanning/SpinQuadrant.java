@@ -5,6 +5,9 @@
  */
 package shiftplanning;
 
+import updatables.Updatable;
+import updatables.UpdatableOnQuadrantChange;
+
 /**
  *
  * @author phusisian
@@ -81,6 +84,6 @@ public class SpinQuadrant implements Updatable, UpdatableOnQuadrantChange
     @Override
     public void updateOnQuadrantChange() 
     {
-        boundPlane.getDistanceSorter().updateOnQuadrantChange();
+        boundPlane.updateOnQuadrantChange();
     }
 }

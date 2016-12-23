@@ -1,5 +1,8 @@
 package shiftplanning;
 
+import shiftcolor.PolygonShader;
+import updatables.MouseUpdatable;
+import updatables.Updatable;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Polygon;
@@ -16,6 +19,7 @@ public class LayeredSolid implements ThreeDDrawable, Updatable, MouseUpdatable
     private Plane boundPlane;
     private ArrayList<Polygon>[] visibleSidePolygons;
     int[][][] solidPolyPoints;
+    private ShapeLayer baseBounds;
     /***NOTE: To function properly, points must be passed in the order from theta = 0 to theta = 2pi. Sides are connected using next index and the next index must be at a positive angle(counterclockwise) to the one prior***/
     public LayeredSolid(Plane boundPlaneIn, ShapeLayer[] shapeLayersIn)
     {
@@ -27,6 +31,14 @@ public class LayeredSolid implements ThreeDDrawable, Updatable, MouseUpdatable
             visibleSidePolygons[i] = new ArrayList<Polygon>();
         }
         solidPolyPoints = new int[shapeLayers.length][2][shapeLayers[0].getNumPoints()];
+    }
+    
+    public XYZRect getBaseBounds(){
+        return shapeLayers[0].getLayerBounds();
+    }
+    
+    public double getHeight(){
+        return shapeLayers[shapeLayers.length - 1].getHighestPoint().getZ();
     }
     
     public boolean visibleSidesContainPoint(int x, int y)
@@ -42,6 +54,14 @@ public class LayeredSolid implements ThreeDDrawable, Updatable, MouseUpdatable
             }
         }
         return false;
+    }
+    
+    public ShapeLayer getShapeLayer(int index){
+        return shapeLayers[index];
+    }
+    
+    public int getLayerLength(){
+        return shapeLayers.length;
     }
     
     public boolean topSideContainsPoint(int x, int y)
@@ -89,11 +109,23 @@ public class LayeredSolid implements ThreeDDrawable, Updatable, MouseUpdatable
         return shapeLayers[index].getXYZPointCollection().getMidpoint();
     }
     
+    public XYZPoint getAverageMidpoint(){
+        double xAvg = 0, yAvg = 0, zAvg = 0;
+        for(ShapeLayer sl : shapeLayers){
+            XYZPoint mid = sl.getXYZPointCollection().getMidpoint();
+            xAvg += mid.getX(); yAvg += mid.getY(); zAvg += mid.getZ();
+        }
+        xAvg /= (double)(shapeLayers.length);
+        yAvg /= (double)(shapeLayers.length);
+        zAvg /= (double)(shapeLayers.length);
+        return new XYZPoint(boundPlane, xAvg, yAvg, zAvg);
+    }
+    
     private void drawSidePolygons(Graphics g, Color topColor)
     {
         for (int i = 0; i < visibleSidePolygons.length; i++)
         {
-            PolygonShader.simpleShadeSidePolygons(g, visibleSidePolygons[i], topColor);
+            PolygonShader.simpleShadeSidePolygons(g, visibleSidePolygons[i], shapeLayers[i].getColor());
         }
     }
     
@@ -174,6 +206,16 @@ public class LayeredSolid implements ThreeDDrawable, Updatable, MouseUpdatable
     public double getSortDistanceConstant() 
     {
         return shapeLayers[0].getSortDistanceConstant();
+    }
+    
+    @Override
+    public double getBackSortDistanceConstant(){
+        return shapeLayers[0].getBackSortDistanceConstant();
+    }
+    
+    @Override
+    public double getZ(){
+        return shapeLayers[shapeLayers.length - 1].getHighestPoint().getZ();
     }
     
     /*

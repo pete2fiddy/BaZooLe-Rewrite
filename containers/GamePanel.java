@@ -13,7 +13,7 @@ import java.util.Random;
 import javax.swing.JPanel;
 import shiftplanning.BasePlane;
 import shiftplanning.Unit;
-import shiftplanning.Updatable;
+import updatables.Updatable;
 
 /**
  *
@@ -26,7 +26,7 @@ both are attached to a Frame/JPanel)
 */
 public class GamePanel extends JPanel implements Updatable
 {
-    private BasePlane basePlane = new BasePlane(this, Frame.screenWidth/2, 2*Frame.screenHeight/4,20,20);
+    private BasePlane basePlane = new BasePlane(this, Frame.screenWidth/2, 2*Frame.screenHeight/4,10,10);
     private GameRepaintTimer gameRepaintTimer;
     private GameStateTimer gameStateTimer;
     private FPSCounter fpsCounter;
