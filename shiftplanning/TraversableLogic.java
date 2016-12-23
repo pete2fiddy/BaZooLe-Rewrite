@@ -1,7 +1,9 @@
 package shiftplanning;
 
 import java.awt.Color;
+import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  *
@@ -23,7 +25,26 @@ public class TraversableLogic {
         traversables = temp;
     }
     
+    public Traversable getTraversableAtXYPoint(Point p){
+        for(int i = 0; i < traversables.length; i++){
+            if(traversables[i].getShape().getAsPolygon().contains(p)){
+                return traversables[i];
+            }
+        }
+        return null;
+    }
+    
+    public boolean traversableInChain(ArrayList<Traversable> traversableList, Traversable checkTraversable){
+        for(Traversable t : traversableList){
+            if(t == checkTraversable){
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public Traversable getNearestTraversableFromPoint(XYZPoint checkPoint){
+        //System.out.println("Traversable Size: " + traversables.length);
         int smallestDistIndex = 0;
         double smallestDist = traversables[0].getShape().getMagnitudeToMidpoint(checkPoint);
         for(int i = 1; i < traversables.length; i++){
@@ -36,6 +57,27 @@ public class TraversableLogic {
         return traversables[smallestDistIndex];
     }
     
+    public ArrayList<XYZPointCollection> getMovementPath(ArrayList<Traversable> chain, Traversable start, Traversable end){
+        ArrayList<Traversable> movementSublist = getMovementSublist(chain, start, end);
+        ArrayList<XYZPointCollection> movementPointCollections = new ArrayList<XYZPointCollection>();
+        for(Traversable t : movementSublist){
+            movementPointCollections.add(t.getMovementPoints());
+        }
+        return movementPointCollections;
+    }
+    
+    private ArrayList<Traversable> getMovementSublist(ArrayList<Traversable> chain, Traversable start, Traversable end){
+        int startIndex = chain.indexOf(start);
+        int endIndex = chain.indexOf(end);
+        if(startIndex <= endIndex){
+            return new ArrayList<Traversable>(chain.subList(startIndex, endIndex));
+        }else{
+            ArrayList<Traversable> tempList = new ArrayList<Traversable>(chain.subList(endIndex, startIndex));
+            Collections.reverse(tempList);
+            return tempList;
+        }
+    }
+ 
     public void setColorOfConnectedPaths(){
         for(int i = 0; i < traversables.length; i++){
             for(int j = 0; j < traversables.length; j++){

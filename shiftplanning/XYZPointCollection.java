@@ -55,6 +55,11 @@ public class XYZPointCollection implements Updatable, TwoDDrawable
         }
     }
     
+    //returns the point halfway through the list. Useful for paths.
+    public XYZPoint getHalfListPoint(){
+        return xyzPoints[(xyzPoints.length/2)];
+    }
+    
     public Plane getBoundPlane(){
         return boundPlane;
     }

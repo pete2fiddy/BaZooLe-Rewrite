@@ -161,6 +161,21 @@ public class XYZPoint implements ThreeDDrawable, Updatable
         return precalculatedPointProjection.getAsPoint();
     }
     
+    /***Returns the translate point that will allow this point to move to a final point within a number of ticks***/
+    public static XYZPoint getMovementTranslatePoint(XYZPoint start, XYZPoint end, int numTicks){
+        double dx = end.getX() - start.getX();
+        double dy = end.getY() - start.getY();
+        double dz = end.getZ()- start.getZ();
+        dx /= (double)numTicks;
+        dy /= (double)numTicks;
+        dz /= (double)numTicks;
+        return new XYZPoint(start.getBoundPlane(), dx, dy, dz);
+    }
+    
+    public XYZPoint clone(){
+        return new XYZPoint(boundPlane, getX(), getY(), getZ());
+    }
+    
     public String toString()
     {
         return Double.toString(point[0]) + ", " + Double.toString(point[1]) + ", " + Double.toString(point[2]);

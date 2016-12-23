@@ -26,7 +26,8 @@ public abstract class Plane implements Updatable, ThreeDDrawable, UpdatableOnQua
     private DistanceSorter distanceSorter;
     private MouseUpdatable[] mouseUpdatables;//holds all objects that update on mouse interaction.
     private XYZPoint[][] gridPoints;
-    
+    private Player player;
+    private TwoDDrawable[] twoDDrawables = new TwoDDrawable[0];
     //private ArrayList<MouseUpdatable> mouseUpdatables = new ArrayList<MouseUpdatable>();
     
     
@@ -57,19 +58,27 @@ public abstract class Plane implements Updatable, ThreeDDrawable, UpdatableOnQua
         addQuadrantUpdatable(distanceSorter);
         gridPoints = new XYZPoint[2][(int)(width+length)];
         setGriddedPlaneShapePoints();
+        player = new Player(this, new XYZPoint(this, 0, -.5, 1));
+        
+        
     }
     
     public abstract BasePlane getBasePlane();
     
     public void addRandomSolidsToThreeDDrawables()
     {
+        
+        Tile t = Tile.createTileUsingBottomLeftCorner(this, new XYZPoint(this, -1, -1, 0), 2, 2, 1);
+        addUpdatable(t);
+        addThreeDDrawable(t);
+        addMouseUpdatable(t);
         int numSolids = 10;
         for(int i = 0; i < numSolids; i++)
         {
             double centerX = (int)((Math.random()*width)-(width/2.0));
             double centerY = (int)(Math.random()*length)-(length/2.0);
             double randomRadius = 0.5 + (Math.random() * 2);
-            double randomHeight = 1 + (int)(Math.random() * 2);
+            double randomHeight = 1;//1 + (int)(Math.random() * 2);
             double randomWidth = (int)(1+(Math.random() * 5));
             double randomLength = (int)(1+(Math.random() * 5));
             int randSides = 3+(int)(Math.random() * 4);
@@ -116,6 +125,9 @@ public abstract class Plane implements Updatable, ThreeDDrawable, UpdatableOnQua
         for(ThreeDDrawable threeD : threeDDrawables)
         {
             threeD.draw(g);
+        }
+        for(TwoDDrawable twoD : twoDDrawables){
+            twoD.draw(g);
         }
     }
     private void drawGriddedPlaneShape(Graphics g)
@@ -195,6 +207,16 @@ public abstract class Plane implements Updatable, ThreeDDrawable, UpdatableOnQua
         }
         tempArray[tempArray.length - 1] = threeDDrawableIn;
         threeDDrawables = tempArray;
+    }
+    
+    public void addTwoDDrawable(TwoDDrawable twoDDrawableIn)
+    {
+        TwoDDrawable[] tempArray = new TwoDDrawable[twoDDrawables.length + 1];
+        for (int i = 0; i < threeDDrawables.length; i++) {
+            tempArray[i] = twoDDrawables[i];
+        }
+        tempArray[tempArray.length - 1] = twoDDrawableIn;
+        twoDDrawables = tempArray;
     }
     
     
@@ -335,16 +357,7 @@ public abstract class Plane implements Updatable, ThreeDDrawable, UpdatableOnQua
     {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
-    @Override
-    public double getBackSortDistanceConstant() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public double getZ() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+    
 
     @Override
     public void updateOnQuadrantChange() {
