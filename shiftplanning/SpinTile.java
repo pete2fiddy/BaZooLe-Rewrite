@@ -32,18 +32,20 @@ public class SpinTile extends Prism implements UpdatableOnQuadrantChange, MouseU
         
     }
     
-    public static SpinTile createTileFromCenterPoint(XYZPoint topCenter, double radius){
+    public static SpinTile createTileFromCenterPoint(Plane boundPlaneIn, XYZPoint topCenter, double radius){
         XYZPoint bottomCenter = topCenter.clone();
         bottomCenter.setZ(0);
-        Prism cylinder = Prism.createPrism(topCenter.getBoundPlane(), bottomCenter, topCenter, radius, numSidesCylinder, ColorPalette.defaultGrassColor);
-        return new SpinTile(topCenter.getBoundPlane(), cylinder.getLayers(), topCenter, radius);
+        Prism cylinder = Prism.createPrism(boundPlaneIn, bottomCenter, topCenter, radius, numSidesCylinder, ColorPalette.defaultGrassColor);
+        SpinTile returnTile = new SpinTile(boundPlaneIn, cylinder.getLayers(), topCenter, radius);
+        boundPlaneIn.addUpdatable(returnTile);
+        boundPlaneIn.addMouseUpdatable(returnTile);
+        boundPlaneIn.addThreeDDrawable(returnTile);
+        return returnTile;
     }
 
     @Override
     public void draw(Graphics g){
         super.draw(g);
-        spinPlane.addSpin((Math.PI/32.0));
-        //spinPlane.update();
         spinPlane.draw(g);
         
     }
@@ -64,6 +66,7 @@ public class SpinTile extends Prism implements UpdatableOnQuadrantChange, MouseU
     @Override
     public void update(){
         super.update();
+        spinPlane.addSpin((Math.PI/32.0));
         //spinPlane.update();
     }
     

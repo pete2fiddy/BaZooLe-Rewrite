@@ -35,6 +35,7 @@ public class BentPath implements TwoDDrawable, Traversable, Updatable {
         //boundTile.getBoundPlane().getBasePlane().addTraversable(this);
     }
     
+    
     private void setMovementPoints(){
         XYZPoint[] movementPointArray = new XYZPoint[3];
         //The order of these points DO matter, as the path the player takes will be reversed if they are in the wrong order. Just reverse them if the path is reversed.

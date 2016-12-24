@@ -67,13 +67,13 @@ public abstract class Plane implements Updatable, ThreeDDrawable, UpdatableOnQua
     
     public abstract BasePlane getBasePlane();
     
-    public void addRandomSolidsToThreeDDrawables()
+    public void addRandomTilesToThreeDDrawables()
     {
         
         Tile t = Tile.createTileUsingBottomLeftCorner(this, new XYZPoint(this, -1, -1, 1), 2, 2);
-        addUpdatable(t);
-        addThreeDDrawable(t);
-        addMouseUpdatable(t);
+        //addUpdatable(t);
+        //addThreeDDrawable(t);
+        //addMouseUpdatable(t);
         int numSolids = 10;
         for(int i = 0; i < numSolids; i++)
         {
@@ -86,9 +86,9 @@ public abstract class Plane implements Updatable, ThreeDDrawable, UpdatableOnQua
             int randSides = 3+(int)(Math.random() * 4);
             Tile solid = Tile.createTileUsingBottomLeftCorner(this, new XYZPoint(this, centerX, centerY, randomHeight), randomWidth, randomLength);
             
-            addUpdatable(solid);
-            addThreeDDrawable(solid);
-            addMouseUpdatable(solid);
+            //addUpdatable(solid);
+            //addThreeDDrawable(solid);
+            //addMouseUpdatable(solid);
         }
     }
     

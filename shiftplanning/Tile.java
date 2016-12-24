@@ -40,7 +40,6 @@ public class Tile extends Prism implements MouseUpdatable, UpdatableOnQuadrantCh
         height = zHeightIn;
         
         distanceSorter = new DistanceSorter(getBoundPlane(), tileDrawables);
-        getBoundPlane().addQuadrantUpdatable(distanceSorter);
         XYZPoint randomPoint = new XYZPoint(getBoundPlane(), getBaseBounds().getPlacementPoint().getX() + 1, getBaseBounds().getPlacementPoint().getY() + .5, getShapeLayer(getLayerLength() - 1).getHighestPoint().getZ());
         //XYZPoint randomPoint = new XYZPoint(getBoundPlane(), getBaseBounds().getPlacementPoint().getX()+ Math.random() * width, getBaseBounds().getPlacementPoint().getY() + Math.random()*length, getShapeLayer(getLayerLength() - 1).getHighestPoint().getZ());
         
@@ -79,6 +78,10 @@ public class Tile extends Prism implements MouseUpdatable, UpdatableOnQuadrantCh
         ShapeLayer layer1 = ShapeLayer.createFlatShapeLayerRectangle(boundPlaneIn, newPoint, width, length, ColorPalette.defaultGrassColor);
         ShapeLayer[] layers = {layer1, layer2};
         Tile t = new Tile(boundPlaneIn, layers, width, length, bottomLeftCorner.getZ());
+        boundPlaneIn.addMouseUpdatable(t);
+        boundPlaneIn.addUpdatable(t);
+        boundPlaneIn.addQuadrantUpdatable(t);
+        boundPlaneIn.addThreeDDrawable(t);
         return t;
     }
     
@@ -255,6 +258,5 @@ public class Tile extends Prism implements MouseUpdatable, UpdatableOnQuadrantCh
     @Override
     public void updateOnQuadrantChange() {
         distanceSorter.updateOnQuadrantChange();
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
