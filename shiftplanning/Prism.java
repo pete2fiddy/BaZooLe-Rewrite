@@ -28,8 +28,8 @@ public class Prism extends LayeredSolid
     private static ShapeLayer[] calculateShapeLayersToPass(Plane boundPlaneIn, XYZPoint baseCenter, XYZPoint topCenter, double radius, int numSides, Color c)
     {
         ShapeLayer[] shapeLayers = new ShapeLayer[2];
-        shapeLayers[0] = ShapeLayer.createShapeLayerUsingIdealPolygon(boundPlaneIn, baseCenter.getX(), baseCenter.getY(), baseCenter.getZ(), radius, numSides, c);
-        shapeLayers[1] = ShapeLayer.createShapeLayerUsingIdealPolygon(boundPlaneIn, topCenter.getX(), topCenter.getY(), topCenter.getZ(), radius, numSides, c);
+        shapeLayers[0] = ShapeLayer.createShapeLayerUsingIdealPolygon(boundPlaneIn, baseCenter.getX(), baseCenter.getY(), baseCenter.getZ(), radius/Math.sqrt(2), numSides, c);
+        shapeLayers[1] = ShapeLayer.createShapeLayerUsingIdealPolygon(boundPlaneIn, topCenter.getX(), topCenter.getY(), topCenter.getZ(), radius/Math.sqrt(2), numSides, c);
         return shapeLayers;
     }
 }

@@ -16,18 +16,18 @@ public class Flower extends Scenery{
     private static final double defaultPetalRadius = .025;
     
     
-    public Flower(LayeredSolid boundSolidIn, XYZPoint placementPoint) {
-        super(boundSolidIn);
-        initScenerySolids(placementPoint);
+    public Flower(Plane boundPlaneIn, LayeredSolid boundSolidIn, XYZPoint placementPoint) {
+        super(boundPlaneIn, boundSolidIn);
+        initScenerySolids(boundPlaneIn, placementPoint);
     }
 
     /***Flowers have no petals currently***/
     @Override
-    public void initScenerySolids(XYZPoint placementPoint) {
+    public void initScenerySolids(Plane boundPlaneIn, XYZPoint placementPoint) {
         LayeredSolid[] solids = new LayeredSolid[2];
-        solids[0] = Prism.createPrism(getBoundSolid().getBoundPlane(), placementPoint, placementPoint.getTranslatedPoint(0,0,defaultStemHeight), defaultStemRadius, 4, ColorPalette.defaultGrassColor);
-        solids[1] = Prism.createPrism(getBoundSolid().getBoundPlane(), placementPoint.getTranslatedPoint(0,0,defaultStemHeight), placementPoint.getTranslatedPoint(0,0,defaultStemHeight + defaultPetalHeight), defaultPetalRadius, 4, getRandomFlowerColor());
-        SolidCollection sc = new SolidCollection(getBoundSolid().getBoundPlane(), solids);
+        solids[0] = Prism.createPrism(boundPlaneIn, placementPoint, placementPoint.getTranslatedPoint(0,0,defaultStemHeight), defaultStemRadius, 4, ColorPalette.defaultGrassColor);
+        solids[1] = Prism.createPrism(boundPlaneIn, placementPoint.getTranslatedPoint(0,0,defaultStemHeight), placementPoint.getTranslatedPoint(0,0,defaultStemHeight + defaultPetalHeight), defaultPetalRadius, 4, getRandomFlowerColor());
+        SolidCollection sc = new SolidCollection(boundPlaneIn, solids);
         setScenerySolids(sc);
     }
     

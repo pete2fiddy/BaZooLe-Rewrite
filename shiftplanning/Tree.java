@@ -6,13 +6,13 @@ import shiftcolor.ColorPalette;
 public class Tree extends Scenery{
 
     private static final Color logColor = new Color(86, 53, 17);
-    public Tree(LayeredSolid boundSolidIn, XYZPoint placementPoint) {
-        super(boundSolidIn);
-        initScenerySolids(placementPoint);
+    public Tree(Plane boundPlaneIn, LayeredSolid boundSolidIn, XYZPoint placementPoint) {
+        super(boundPlaneIn, boundSolidIn);
+        initScenerySolids(boundPlaneIn, placementPoint);
     }
 
     @Override
-    public void initScenerySolids(XYZPoint placementPoint) {
+    public void initScenerySolids(Plane boundPlaneIn, XYZPoint placementPoint) {
         LayeredSolid[] solids = new LayeredSolid[6];
         solids[0] = getLogSolid(placementPoint);
         
@@ -28,21 +28,21 @@ public class Tree extends Scenery{
         for(double heightCount = initialHeight; heightCount < upperHeight; heightCount+= addNum)
         {
             //top side is .175 units smaller than bottom side.
-            TruncatedPyramid tp = TruncatedPyramid.createPyramidUsingIdealPolygons(getBoundSolid().getBoundPlane(), placementPoint.getTranslatedPoint(0, 0, heightCount), placementPoint.getTranslatedPoint(0,0, heightCount + addNum), scaleNumber*(1.0/4.0), (scaleNumber*(1.0/4.0))-0.1, 4, ColorPalette.defaultGrassColor);
+            TruncatedPyramid tp = TruncatedPyramid.createPyramidUsingIdealPolygons(boundPlaneIn, placementPoint.getTranslatedPoint(0, 0, heightCount), placementPoint.getTranslatedPoint(0,0, heightCount + addNum), scaleNumber*(1.0/4.0), (scaleNumber*(1.0/4.0))-0.1, 4, ColorPalette.defaultGrassColor);
             scaleNumber -= 0.15;
             solids[numShapes] = tp;
             numShapes++;
         }
-        solids[5] = Pyramid.createPyramidUsingIdealPolygon(getBoundSolid().getBoundPlane(), placementPoint.getTranslatedPoint(0, 0, upperHeight), placementPoint.getTranslatedPoint(0, 0, upperHeight + addNum), .25*(1.0/4.0), 4, ColorPalette.defaultGrassColor);
-        SolidCollection sc = new SolidCollection(getBoundSolid().getBoundPlane(), solids);
+        solids[5] = Pyramid.createPyramidUsingIdealPolygon(boundPlaneIn, placementPoint.getTranslatedPoint(0, 0, upperHeight), placementPoint.getTranslatedPoint(0, 0, upperHeight + addNum), .25*(1.0/4.0), 4, ColorPalette.defaultGrassColor);
+        SolidCollection sc = new SolidCollection(boundPlaneIn, solids);
         setScenerySolids(sc);
     }
     
     private LayeredSolid getLogSolid(XYZPoint placementPoint){
         LayeredSolid[] solids = new LayeredSolid[2];
-        XYZPoint basePoint = new XYZPoint(getBoundSolid().getBoundPlane(), placementPoint.getX(), placementPoint.getY(), placementPoint.getZ() + 0);
-        XYZPoint secondPoint = new XYZPoint(getBoundSolid().getBoundPlane(), placementPoint.getX(), placementPoint.getY(), placementPoint.getZ() + .2);
-        return Prism.createPrism(getBoundSolid().getBoundPlane(), basePoint, secondPoint, 1.0/14.0, 4, logColor);
+        XYZPoint basePoint = new XYZPoint(getBoundPlane(), placementPoint.getX(), placementPoint.getY(), placementPoint.getZ() + 0);
+        XYZPoint secondPoint = new XYZPoint(getBoundPlane(), placementPoint.getX(), placementPoint.getY(), placementPoint.getZ() + .2);
+        return Prism.createPrism(getBoundPlane(), basePoint, secondPoint, 1.0/14.0, 4, logColor);
     }
 
 }

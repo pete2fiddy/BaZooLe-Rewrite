@@ -28,6 +28,7 @@ public abstract class Plane implements Updatable, ThreeDDrawable, UpdatableOnQua
     private XYZPoint[][] gridPoints;
     private Player player;
     private TwoDDrawable[] twoDDrawables = new TwoDDrawable[0];
+    private double zPos;
     //private ArrayList<MouseUpdatable> mouseUpdatables = new ArrayList<MouseUpdatable>();
     
     
@@ -38,12 +39,13 @@ public abstract class Plane implements Updatable, ThreeDDrawable, UpdatableOnQua
     /*
         CURRENTLY DOESN'T TAKE A ZPOS. (Note:) Bound planes should take an XYZPoint for their position input
     */
-    public Plane(GamePanel boundPanelIn, double centerPosXIn, double centerPosYIn, double widthIn, double lengthIn)
+    public Plane(GamePanel boundPanelIn, double centerPosXIn, double centerPosYIn, double zPosIn, double widthIn, double lengthIn)
     {
         boundPanel = boundPanelIn;
         centerPosX = centerPosXIn;
         centerPosY = centerPosYIn;
         spin = 0;
+        zPos = zPosIn;
         rotation = 0;
         width = widthIn;
         length = lengthIn;
@@ -68,7 +70,7 @@ public abstract class Plane implements Updatable, ThreeDDrawable, UpdatableOnQua
     public void addRandomSolidsToThreeDDrawables()
     {
         
-        Tile t = Tile.createTileUsingBottomLeftCorner(this, new XYZPoint(this, -1, -1, 0), 2, 2, 1);
+        Tile t = Tile.createTileUsingBottomLeftCorner(this, new XYZPoint(this, -1, -1, 1), 2, 2);
         addUpdatable(t);
         addThreeDDrawable(t);
         addMouseUpdatable(t);
@@ -82,7 +84,7 @@ public abstract class Plane implements Updatable, ThreeDDrawable, UpdatableOnQua
             double randomWidth = (int)(1+(Math.random() * 5));
             double randomLength = (int)(1+(Math.random() * 5));
             int randSides = 3+(int)(Math.random() * 4);
-            Tile solid = Tile.createTileUsingBottomLeftCorner(this, new XYZPoint(this, centerX, centerY, 0), randomWidth, randomLength, randomHeight);
+            Tile solid = Tile.createTileUsingBottomLeftCorner(this, new XYZPoint(this, centerX, centerY, randomHeight), randomWidth, randomLength);
             
             addUpdatable(solid);
             addThreeDDrawable(solid);
@@ -97,10 +99,12 @@ public abstract class Plane implements Updatable, ThreeDDrawable, UpdatableOnQua
     //converts x and y in terms of relative units into a point to be projected on screen. Uses centerPosX and centerPosY for relative positioning so same conversions can be used for BasePlane and BoundPlane
     public XYPoint convertCoordsToPoint(XYZPoint xyzPoint)
     {
-        double radius = XYZPoint.getXYMagnitudeBetweenPoints(new XYZPoint(), xyzPoint);
+        XYZPoint radiusPoint = new XYZPoint();
+        radiusPoint.setZ(zPos);
+        double radius = XYZPoint.getXYMagnitudeBetweenPoints(radiusPoint, xyzPoint);
         double pointAngle = Math.atan2(xyzPoint.getY(), xyzPoint.getX());
         double xPos = centerPosX + (radius*Unit.scaledUnit*Math.cos(pointAngle + spin));
-        double yPos = centerPosY + (getShrink() * radius*Unit.scaledUnit*Math.sin(pointAngle + spin)) - getScaledDistortedHeight(xyzPoint);
+        double yPos = centerPosY + (getShrink() * radius*Unit.scaledUnit*Math.sin(pointAngle + spin)) - getScaledDistortedHeight(xyzPoint);// - getScaledDistortedHeight(zPos);
         return new XYPoint(xPos, yPos);
     }
     //precalculate getShrink into a variable. Find a way to precalculate (at least partially) a distorted height constant
@@ -240,7 +244,11 @@ public abstract class Plane implements Updatable, ThreeDDrawable, UpdatableOnQua
     
     private double getScaledDistortedHeight(XYZPoint xyzPoint)
     {
-        return xyzPoint.getZ()*Unit.scaledUnit * Math.sin(rotation);
+        return xyzPoint.getZ()*Unit.scaledUnit * Math.sin(rotation);// + getScaledDistortedHeight(zPos);//not adding fixed the fact that all the heights on bound planes were twice as high ash they should have been. 
+    }
+    
+    private double getScaledDistortedHeight(double unitHeight){
+        return unitHeight*Unit.scaledUnit * Math.sin(rotation);
     }
     
     public double getSpin()
@@ -268,6 +276,11 @@ public abstract class Plane implements Updatable, ThreeDDrawable, UpdatableOnQua
             spin += Math.PI*2.0;
         }
     }
+    
+    public void setSpin(double d){
+        spin = d;
+    }
+    
     
     private void setRotationWithinBounds()
     {
@@ -325,7 +338,17 @@ public abstract class Plane implements Updatable, ThreeDDrawable, UpdatableOnQua
         //traversableLogic.setColorOfConnectedPaths();
     }
 
+    public void setCenterPosX(double xIn){
+        centerPosX = xIn;
+    }
     
+    public void setZPos(double zIn){
+        zPos = zIn;
+    }
+    
+    public void setCenterPosY(double yIn){
+        centerPosY = yIn;
+    }
     
     private void setGriddedPlaneShapePoints()
     {

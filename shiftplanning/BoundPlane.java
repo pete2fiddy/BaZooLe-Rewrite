@@ -9,10 +9,12 @@ import java.awt.Graphics;
  */
 public class BoundPlane extends Plane implements ThreeDDrawable
 {
+    private XYZPoint positionPoint;
     private Plane boundPlane;
-    public BoundPlane(GamePanel boundPanelIn, Plane boundPlaneIn, double xPos, double yPos, double width, double length) {
-        super(boundPanelIn, xPos, yPos, width, length);
+    public BoundPlane(GamePanel boundPanelIn, Plane boundPlaneIn, XYZPoint posPointIn, double width, double length) {
+        super(boundPanelIn, boundPlaneIn.convertCoordsToPoint(posPointIn).getX(), boundPlaneIn.convertCoordsToPoint(posPointIn).getY(), posPointIn.getZ(), width, length);
         boundPlane = boundPlaneIn;
+        positionPoint = posPointIn;
     }
     
     @Override
@@ -23,9 +25,20 @@ public class BoundPlane extends Plane implements ThreeDDrawable
     /***Not implemented yet.***/
     @Override
     public void draw(Graphics g) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        super.draw(g);
+        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
+    public void update(){
+        positionPoint.update();
+        XYPoint convertedPoint = getBasePlane().convertCoordsToPoint(positionPoint);
+        setCenterPosX(convertedPoint.getX());
+        setCenterPosY(convertedPoint.getY());
+        setZPos(positionPoint.getZ());
+        super.update();
+    }
+    
     /***Not implemented yet.***/
     @Override
     public double getSortDistanceConstant() {

@@ -31,6 +31,7 @@ public class Tile extends Prism implements MouseUpdatable, UpdatableOnQuadrantCh
     private BentPath path;
     
     //consider moving a shape layer array into a class? ( I guess that's technically layered solid, which you need to pass to it to instantiate)
+    
     public Tile(Plane boundPlaneIn, ShapeLayer[] shapeLayersIn, double widthIn, double lengthIn, double zHeightIn)
     {
         super(boundPlaneIn, shapeLayersIn);
@@ -46,12 +47,12 @@ public class Tile extends Prism implements MouseUpdatable, UpdatableOnQuadrantCh
         path = new BentPath(this, randomPoint, (int)(Math.random() * 4) * Math.PI/2.0);// Math.random() * (Math.PI*2.0));//currently not working for exact angles of 90 degrees. Band aid fix is to add a tiny tiny fraction to it.
         addUpdatable(path);
         getBoundPlane().getBasePlane().addTraversable(path);
-        Tree t = new Tree(this, getRandomPointOnTile());
+        Tree t = new Tree(getBoundPlane(), this, getRandomPointOnTile());
         LayeredSolid[] treeSolids = t.getScenerySolids().getSolids();
         for(LayeredSolid ls : treeSolids){
             addThreeDDrawable(ls);
         }
-        Flower f = new Flower(this, getRandomPointOnTile());
+        Flower f = new Flower(getBoundPlane(), this, getRandomPointOnTile());
         LayeredSolid[] flowerSolids = f.getScenerySolids().getSolids();
         for(LayeredSolid ls : flowerSolids){
             addThreeDDrawable(ls);
@@ -70,13 +71,14 @@ public class Tile extends Prism implements MouseUpdatable, UpdatableOnQuadrantCh
         return getShapeLayer(getLayerLength() - 1).getLayerBounds().getPlacementPoint();
     }
     
-    public static Tile createTileUsingBottomLeftCorner(Plane boundPlaneIn, XYZPoint bottomLeftCorner, double width, double length, double zHeight)
+    /***Originally took a zHeight double, but decided instead to make it so that the height of the bottom left corner XYZPoint would be used.***/
+    public static Tile createTileUsingBottomLeftCorner(Plane boundPlaneIn, XYZPoint bottomLeftCorner, double width, double length)
     {
-        ShapeLayer layer1 = ShapeLayer.createFlatShapeLayerRectangle(boundPlaneIn, bottomLeftCorner, width, length, ColorPalette.defaultGrassColor);
-        XYZPoint newPoint = new XYZPoint(boundPlaneIn, bottomLeftCorner.getX(), bottomLeftCorner.getY(), bottomLeftCorner.getZ() + zHeight);
-        ShapeLayer layer2 = ShapeLayer.createFlatShapeLayerRectangle(boundPlaneIn, newPoint, width, length, ColorPalette.defaultGrassColor);
+        ShapeLayer layer2 = ShapeLayer.createFlatShapeLayerRectangle(boundPlaneIn, bottomLeftCorner, width, length, ColorPalette.defaultGrassColor);
+        XYZPoint newPoint = new XYZPoint(boundPlaneIn, bottomLeftCorner.getX(), bottomLeftCorner.getY(), 0);//bottomLeftCorner.getZ() + bottomLeftCorner.getZ());
+        ShapeLayer layer1 = ShapeLayer.createFlatShapeLayerRectangle(boundPlaneIn, newPoint, width, length, ColorPalette.defaultGrassColor);
         ShapeLayer[] layers = {layer1, layer2};
-        Tile t = new Tile(boundPlaneIn, layers, width, length, zHeight);
+        Tile t = new Tile(boundPlaneIn, layers, width, length, bottomLeftCorner.getZ());
         return t;
     }
     
@@ -121,28 +123,31 @@ public class Tile extends Prism implements MouseUpdatable, UpdatableOnQuadrantCh
     
     private void respondToClick()
     {
-        clicked = true;
-        color = Color.RED;
-        getShapeLayer(getLayerLength() - 1).setColor(color);
+        if(visibleSideContainsPoint(MouseInput.clickX, MouseInput.clickY) && !getBoundPlane().getBasePlane().isTraversableClicked()){
+            clicked = true;
+            color = Color.RED;
+            getShapeLayer(getLayerLength() - 1).setColor(color);
+        }
     }
     
     private void respondToUnclick()
     {
-        /*if(isClickMoveableTo())
-        {
-            translate(new XYZPoint(getBoundPlane(), 1, 1, 0));
-        }*/
-        
-        if(getTranslateMovementPoint() != null)
-        {
-            translateMovementPoint = getTranslateMovementPoint();
-            
-            //translate(getTranslateMovementPoint());
+        if(!visibleSideContainsPoint(MouseInput.mouseX, MouseInput.mouseY) && !getBoundPlane().getBasePlane().isTraversableClicked()){
+            if(getTranslateMovementPoint() != null)
+            {
+                translateMovementPoint = getTranslateMovementPoint();
+
+                //translate(getTranslateMovementPoint());
+            }
+            //setCenter(MouseInput.mouseCoordsOnPlane);
+            clicked = false;
+            color = ColorPalette.defaultGrassColor;
+            getShapeLayer(getLayerLength() - 1).setColor(color);
+        }else{
+            clicked = false;
+            color = ColorPalette.defaultGrassColor;
+            getShapeLayer(getLayerLength() - 1).setColor(color);
         }
-        //setCenter(MouseInput.mouseCoordsOnPlane);
-        clicked = false;
-        color = ColorPalette.defaultGrassColor;
-        getShapeLayer(getLayerLength() - 1).setColor(color);
     }
     /*
     private boolean isClickMoveX()
@@ -204,7 +209,7 @@ public class Tile extends Prism implements MouseUpdatable, UpdatableOnQuadrantCh
     
     public void updateOnMouseClick()
     {
-        if(visibleSideContainsPoint(MouseInput.clickX, MouseInput.clickY))
+        if(!clicked)
         {
             respondToClick();
         }else if(clicked){

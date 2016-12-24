@@ -34,6 +34,10 @@ public class TraversableLogic {
         return null;
     }
     
+    public Traversable[] getTraversables(){
+        return traversables;
+    }
+    
     public boolean traversableInChain(ArrayList<Traversable> traversableList, Traversable checkTraversable){
         for(Traversable t : traversableList){
             if(t == checkTraversable){

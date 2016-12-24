@@ -13,16 +13,12 @@ import updatables.MouseUpdatable;
  */
 public class Player implements TwoDDrawable, MouseUpdatable{
     private XYZPoint position;
-    //might support multiple planes now?
+    //might support multiple planes now? Probably will with some finagling.
     private Plane boundPlane;
     private Traversable clickedTraversable;
     private Traversable boundTraversable;
     private static final int numTicksPerUnit = 50;
-    private ArrayList<XYZPointCollection> movementCollections;
     private ArrayList<XYZPoint> movementPoints;
-    private ArrayList<Traversable> chain;
-    private int collectionIndex = 0;
-    private int pointIndex = 0;
     private int movementPointIndex = 0;
     
     public Player(Plane boundPlaneIn, XYZPoint positionIn){
@@ -39,72 +35,21 @@ public class Player implements TwoDDrawable, MouseUpdatable{
     
     private void setClickedTraversable(){
         clickedTraversable = boundPlane.getBasePlane().getTraversableLogic().getTraversableAtXYPoint(new Point(MouseInput.mouseX, MouseInput.mouseY));
-        ArrayList<Traversable> tempChain = boundPlane.getBasePlane().getTraversableLogic().getTraversableChain(boundTraversable);
-        if(boundPlane.getBasePlane().getTraversableLogic().traversableInChain(tempChain, clickedTraversable)){
-            movementCollections = boundPlane.getBasePlane().getTraversableLogic().getMovementPath(tempChain, boundTraversable, clickedTraversable);
-            chain = tempChain;
-            setMovementPoints();
-        }
-       
-       
+        setMovementPoints();
+        movementPointIndex = 0;
     }
     
     private void setMovementPoints(){
-        if(movementCollections != null){
+        ArrayList<Traversable> tempChain = boundPlane.getBasePlane().getTraversableLogic().getTraversableChain(boundTraversable);
+        if(clickedTraversable != boundTraversable && boundPlane.getBasePlane().getTraversableLogic().traversableInChain(tempChain, clickedTraversable)){
+            ArrayList<XYZPointCollection> tempCollections = boundPlane.getBasePlane().getTraversableLogic().getMovementPath(tempChain, boundTraversable, clickedTraversable);
             movementPoints = new ArrayList<XYZPoint>();
-            XYZPoint start = movementCollections.get(0).getHalfListPoint();
-            XYZPoint secondPoint = getPointClosestToTraversable(chain.get(0), chain.get(1));
-            XYZPoint end = movementCollections.get(movementCollections.size() - 1).getHalfListPoint();
-            XYZPoint secondToLast = getPointClosestToTraversable(chain.get(chain.size() - 2), chain.get(chain.size() - 1));
-            movementPoints.add(start);
-            movementPoints.add(secondPoint);
-            //XYZPoint currentPoint = getPointOnTraversableClosestToPoint(secondToLast, chain.get(1));
-            int pointsCounted = 0;
-            for(int i = 1; i < chain.size(); i++){
-                System.out.println("Called");
-                while(pointsCounted < chain.get(i).getMovementPoints().getXYZPointsLength()){
-                    XYZPoint newPoint = getPointOnTraversableClosestToPoint(movementPoints.get(movementPoints.size() - 1), chain.get(i));
-                    movementPoints.add(newPoint);
-                    pointsCounted++;
-                }
+            for(XYZPointCollection pc : tempCollections){
+                /***Half list point added for sake of correct path following order. WILL pose a problem in the puture for the player to follow
+                Paths that don't make sense to just travel from midpoint to midpoint, but for basic right angles, this will function correctly.***/
+                movementPoints.add(pc.getHalfListPoint());
             }
-            movementPoints.add(secondToLast);
-            movementPoints.add(end);
-        }
-    }
-    
-    private XYZPoint getPointClosestToTraversable(Traversable start, Traversable end){
-        double minDist = XYZPoint.getTotalMagnitudeBetweenPoints(start.getMovementPoints().getXYZPoints()[0], end.getMovementPoints().getXYZPoints()[0]);
-        int minDistIndex = 0;
-        XYZPoint[] startPoints = start.getMovementPoints().getXYZPoints();
-        XYZPoint[] endPoints = end.getMovementPoints().getXYZPoints();
-        for(int i = 1; i < startPoints.length; i++){
-            for(int j = 0; j < endPoints.length ; j++){
-                double checkDist = XYZPoint.getTotalMagnitudeBetweenPoints(startPoints[i], endPoints[j]);
-                if(checkDist < minDist){
-                    minDist = checkDist;
-                    minDistIndex = i;
-                }
-            }
-        }
-        return startPoints[minDistIndex];
-    }
-    
-    private XYZPoint getPointOnTraversableClosestToPoint(XYZPoint start, Traversable end){
-        double minDist = XYZPoint.getTotalMagnitudeBetweenPoints(start, end.getMovementPoints().getXYZPoints()[0]);
-        int minDistIndex = 0;
-        //XYZPoint[] startPoints = start.getMovementPoints().getXYZPoints();
-        XYZPoint[] endPoints = end.getMovementPoints().getXYZPoints();
-        
-        for(int j = 0; j < endPoints.length ; j++){
-            double checkDist = XYZPoint.getTotalMagnitudeBetweenPoints(start, endPoints[j]);
-            if(checkDist < minDist){
-                minDist = checkDist;
-                minDistIndex = j;
-            }
-        }
-        
-        return endPoints[minDistIndex];
+        }   
     }
     
     private void moveToPoint(XYZPoint endPoint){
@@ -125,83 +70,33 @@ public class Player implements TwoDDrawable, MouseUpdatable{
     }
     
     private void move(){
-        if(movementCollections != null){
+        if(movementPoints != null){
             XYZPoint nextPoint = movementPoints.get(movementPointIndex);
             moveToPoint(nextPoint);
             if(getNumTicksToMove(nextPoint) == 0){
                 if(movementPointIndex < movementPoints.size() - 1){
-                    movementPointIndex = 0;
+                    movementPointIndex++;
                 }else{
-                    movementCollections = null;
+                    //movementCollections = null;
                     movementPoints = null;
-                    chain = null;
+                    //chain = null;
                     movementPointIndex = 0;
                 }
             }
-            /*
-            XYZPoint nextPoint = movementCollections.get(collectionIndex).getXYZPoints()[pointIndex];
-            moveToPoint(nextPoint);
-            if(getNumTicksToMove(nextPoint) == 0){
-                if(pointIndex < movementCollections.get(collectionIndex).getXYZPoints().length - 1){
-                    pointIndex++;
-                }else{
-                    pointIndex = 0;
-                    if(collectionIndex < movementCollections.size() - 1){
-                        collectionIndex ++;
-                    }else{
-                        movementCollections = null;
-                        movementPoints = null;
-                        chain = null;
-                    }
-                }
-            }*/
         }
     }
 
     @Override
     public void draw(Graphics g) {
-        
         setBoundTraversable();
-        //System.out.println("Bound Traversable: " + boundTraversable);
-            
-        
-        //setClickedTraversable();
-        /*if(clickedTraversable != null){
-            if(boundPlane.getBasePlane().getTraversableLogic().traversableInChain(tempChain, clickedTraversable)){
-                g.setColor(Color.GREEN);
-                
-               
-                
-            }
-        }else{
-            g.setColor(Color.BLUE);
-        }*/
-        /*
-        for(Traversable t : tempChain){
-            for(XYZPoint p : t.getMovementPoints().getXYZPoints()){
-                //g.setColor(Color.BLUE);
-                //p.draw(g);
-            }
-        } 
-        */
         move();
         g.setColor(Color.BLUE);
         position.draw(g);
-        
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
-    
-    //@Override
-    public double getSortDistanceConstant() {
-        return position.getSortDistanceConstant();
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void updateOnMouseClick() {
         setClickedTraversable();
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

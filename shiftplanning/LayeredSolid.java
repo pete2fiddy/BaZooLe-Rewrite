@@ -56,6 +56,10 @@ public class LayeredSolid implements ThreeDDrawable, Updatable, MouseUpdatable
         return false;
     }
     
+    public ShapeLayer[] getLayers(){
+        return shapeLayers;
+    }
+    
     public ShapeLayer getShapeLayer(int index){
         return shapeLayers[index];
     }

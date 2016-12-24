@@ -10,12 +10,18 @@ public abstract class Scenery implements Updatable{
     private SolidCollection scenerySolids;
     private LayeredSolid boundSolid;
     private XYZPoint relPoint;
-    public Scenery(LayeredSolid boundSolidIn){
+    private Plane boundPlane;
+    public Scenery(Plane boundPlaneIn, LayeredSolid boundSolidIn){
         boundSolid = boundSolidIn;
         boundSolid.getBoundPlane().addUpdatable(this);
+        boundPlane = boundPlaneIn;
     }
     
-    public abstract void initScenerySolids(XYZPoint placementPoint);
+    public Plane getBoundPlane(){
+        return boundPlane;
+    }
+    
+    public abstract void initScenerySolids(Plane boundPlaneIn, XYZPoint placementPoint);
     
     public void setScenerySolids(SolidCollection sc){
         scenerySolids = sc;
